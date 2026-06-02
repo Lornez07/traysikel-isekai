@@ -1332,9 +1332,9 @@ document.addEventListener('keyup',e=>{
 });
 
 // ── Click for Level Up ──
-canvas.addEventListener('click',e=>{
+C.addEventListener('click',e=>{
   if(G.phase!=='levelUp')return;
-  const rect=canvas.getBoundingClientRect();
+  const rect=C.getBoundingClientRect();
   const scaleX=W/rect.width,scaleY=H/rect.height;
   const mx=(e.clientX-rect.left)*scaleX,my=(e.clientY-rect.top)*scaleY;
   const choices=G.levelChoices;
@@ -1348,11 +1348,11 @@ canvas.addEventListener('click',e=>{
 });
 
 // ── Touch for Level Up ──
-canvas.addEventListener('touchstart',e=>{
+C.addEventListener('touchstart',e=>{
   if(G.phase!=='levelUp')return;
   e.preventDefault();
   const touch=e.touches[0];
-  const rect=canvas.getBoundingClientRect();
+  const rect=C.getBoundingClientRect();
   const scaleX=W/rect.width,scaleY=H/rect.height;
   const mx=(touch.clientX-rect.left)*scaleX,my=(touch.clientY-rect.top)*scaleY;
   const choices=G.levelChoices;
@@ -1367,7 +1367,7 @@ canvas.addEventListener('touchstart',e=>{
 
 // ── Touch drive ──
 let touchId=null,touchX=null,touchY=null;
-canvas.addEventListener('touchstart',e=>{
+C.addEventListener('touchstart',e=>{
   if(G.phase==='start'||G.phase==='gameOver'){resetGame();return}
   if(G.phase!=='playing')return;
   e.preventDefault();
@@ -1375,11 +1375,11 @@ canvas.addEventListener('touchstart',e=>{
   touchId=t.identifier;
   touchX=t.clientX;touchY=t.clientY;
 },{passive:false});
-canvas.addEventListener('touchmove',e=>{
+C.addEventListener('touchmove',e=>{
   if(G.phase!=='playing')return;
   e.preventDefault();
   const t=Array.from(e.touches).find(t=>t.identifier===touchId)||e.touches[0];
-  const rect=canvas.getBoundingClientRect();
+  const rect=C.getBoundingClientRect();
   const cx=t.clientX-rect.left,cy=t.clientY-rect.top;
   const dx=cx-W/2,dy=cy-H/2;
   const len=Math.hypot(dx,dy);
@@ -1391,7 +1391,7 @@ canvas.addEventListener('touchmove',e=>{
   }
   touchX=t.clientX;touchY=t.clientY;
 },{passive:false});
-canvas.addEventListener('touchend',e=>{
+C.addEventListener('touchend',e=>{
   touchId=null;
   G.p.vx=0;G.p.vy=0;
 });
