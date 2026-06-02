@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { rollHero } from '../data/heroes'
+import { rollHero, RARITY_TIERS } from '../data/heroes'
 
 const GEM_COST = 5
 const SUMMON_DURATION = 1500
