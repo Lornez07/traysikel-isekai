@@ -16,6 +16,7 @@ canvas{display:block;border-radius:16px;background:#0f0f1a;width:900px;height:60
 <div class="game-wrapper"><canvas id="game" width="900" height="600"></canvas></div>
 <script>
 const C=document.getElementById('game'),ctx=C.getContext('2d');
+console.log('[Traysikel] Grand Line Cruise v2 loaded');
 const W=900,H=600,CX=W/2,CY=H/2;
 
 // ── RNG ──
@@ -493,39 +494,33 @@ function updateParticles(){
 // ── Drawing ──
 
 function drawBackground(){
-  // dock/sea floor pattern
-  ctx.fillStyle='#1a1a2e';
-  ctx.fillRect(0,0,W,H);
-  // stone tile grid
-  const ts=48;
-  for(let x=0;x<W;x+=ts){
-    for(let y=0;y<H;y+=ts){
-      const idx=Math.floor(x/ts)+(Math.floor(y/ts)%2===0?1:0);
-      ctx.fillStyle=idx%2===0?'#1e1e32':'#22223a';
-      ctx.fillRect(x,y,ts,ts);
-      ctx.strokeStyle='#2a2a45';
-      ctx.lineWidth=0.5;
-      ctx.strokeRect(x,y,ts,ts);
-    }
-  }
-  // water reflection overlay
+  // sea floor / dock pattern
   const grd=ctx.createLinearGradient(0,0,0,H);
-  grd.addColorStop(0,'rgba(59,130,246,0.05)');
-  grd.addColorStop(0.5,'rgba(59,130,246,0.02)');
-  grd.addColorStop(1,'rgba(59,130,246,0.05)');
+  grd.addColorStop(0,'#1a1a3e');
+  grd.addColorStop(0.5,'#1e2040');
+  grd.addColorStop(1,'#161638');
   ctx.fillStyle=grd;
   ctx.fillRect(0,0,W,H);
 
-  // subtle wave lines
-  ctx.strokeStyle='rgba(59,130,246,0.06)';
-  ctx.lineWidth=1;
-  for(let i=0;i<5;i++){
-    const wy=100+i*120+Math.sin(G.frame*0.01+i)*20;
-    ctx.beginPath();
-    for(let x=0;x<W;x+=10){
-      ctx.lineTo(x,wy+Math.sin(x*0.03+G.frame*0.02)*8);
+  // stone tile grid
+  const ts=52;
+  for(let x=-ts;x<W;x+=ts){
+    for(let y=-ts;y<H;y+=ts){
+      const cx=Math.floor(x/ts),cy=Math.floor(y/ts);
+      ctx.fillStyle=(cx+cy)%2===0?'#252550':'#2a2a55';
+      ctx.beginPath();
+      ctx.roundRect(x+1,y+1,ts-2,ts-2,3);
+      ctx.fill();
     }
-    ctx.stroke();
+  }
+
+  // water shimmer
+  ctx.fillStyle='rgba(59,130,246,0.04)';
+  for(let i=0;i<8;i++){
+    const wy=rand(0,H),wx=rand(0,W);
+    ctx.beginPath();
+    ctx.ellipse(wx,wy,rand(30,80),rand(4,10),rand(0,Math.PI),0,Math.PI*2);
+    ctx.fill();
   }
 }
 
@@ -993,130 +988,163 @@ function drawHUD(){
 
 // ── Start Screen ──
 function drawStartScreen(){
-  ctx.fillStyle='rgba(15,15,26,0.85)';
-  ctx.fillRect(0,0,W,H);
-
   ctx.textAlign='center';
   ctx.textBaseline='middle';
 
+  // Dark poster background
+  ctx.fillStyle='rgba(10,10,26,0.75)';
+  ctx.beginPath();
+  ctx.roundRect(34,19,W-68,H-38,8);
+  ctx.fill();
+
   // Border frame (Wanted Poster style)
-  ctx.strokeStyle='#f59e0b';
-  ctx.lineWidth=3;
-  ctx.strokeRect(40,20,W-80,H-40);
-  ctx.strokeStyle='rgba(245,158,11,0.3)';
+  ctx.shadowBlur=0;
+  ctx.strokeStyle='#fbbf24';
+  ctx.lineWidth=4;
+  ctx.strokeRect(30,15,W-60,H-30);
+  ctx.strokeStyle='rgba(251,191,36,0.2)';
   ctx.lineWidth=1;
-  ctx.strokeRect(44,24,W-88,H-48);
+  ctx.strokeRect(36,21,W-72,H-42);
 
   // Title
-  ctx.font='bold 44px Orbitron,monospace';
+  ctx.font='bold 48px Orbitron,monospace';
   ctx.fillStyle='#ef4444';
   ctx.shadowColor='#ef4444';
-  ctx.shadowBlur=40;
-  ctx.fillText('TRAYSIKEL',CX,160);
+  ctx.shadowBlur=50;
+  ctx.fillText('TRAYSIKEL',CX,140);
   ctx.shadowBlur=0;
 
-  ctx.font='bold 20px Orbitron,monospace';
-  ctx.fillStyle='#f59e0b';
-  ctx.fillText('GRAND LINE CRUISE',CX,200);
+  ctx.font='bold 22px Orbitron,monospace';
+  ctx.fillStyle='#fbbf24';
+  ctx.fillText('GRAND LINE CRUISE',CX,180);
 
   // Subtitle
-  ctx.font='18px Rajdhani,sans-serif';
-  ctx.fillStyle='#94a3b8';
-  ctx.fillText('A One Piece Isekai Survival RPG',CX,240);
+  ctx.font='16px Rajdhani,sans-serif';
+  ctx.fillStyle='#cbd5e1';
+  ctx.fillText('A One Piece Isekai Survival RPG',CX,220);
+
+  // Divider line
+  ctx.strokeStyle='rgba(251,191,36,0.3)';
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(150,240);
+  ctx.lineTo(W-150,240);
+  ctx.stroke();
 
   // Tricycle art
-  ctx.fillStyle='#dc2626';
-  ctx.font='60px sans-serif';
-  ctx.fillText('🛺',CX,310);
+  ctx.font='72px sans-serif';
+  ctx.fillText('🛺',CX,320);
+
+  // Tricycle nameplate
+  ctx.fillStyle='rgba(239,68,68,0.15)';
+  ctx.beginPath();
+  ctx.roundRect(310,340,280,32,6);
+  ctx.fill();
+  ctx.fillStyle='#ef4444';
+  ctx.font='bold 13px Rajdhani,sans-serif';
+  ctx.fillText('★ FRANKY SPECIAL ★',CX,360);
 
   // Controls
-  ctx.font='15px Rajdhani,sans-serif';
+  ctx.font='14px Rajdhani,sans-serif';
+  ctx.fillStyle='#94a3b8';
+  ctx.fillText('WASD / Arrow Keys  —  Drive the Tricycle',CX,400);
   ctx.fillStyle='#64748b';
-  ctx.fillText('WASD / Arrow Keys — Drive',CX,370);
-  ctx.fillText('Auto-aim cannons fire at nearest enemy',CX,394);
-  ctx.fillText('Run over Cola Crates to refuel',CX,418);
+  ctx.fillText('Auto-aim cannons fire at nearest enemy',CX,424);
+  ctx.fillText('Run over Cola Crates to refuel',CX,448);
 
   // Start prompt
-  ctx.font='bold 22px Rajdhani,sans-serif';
-  ctx.fillStyle='#facc15';
-  const pulse=Math.sin(G.frame*0.04)*0.3+0.7;
+  ctx.font='bold 24px Rajdhani,sans-serif';
+  ctx.fillStyle='#fbbf24';
+  ctx.shadowColor='#fbbf24';
+  ctx.shadowBlur=20;
+  const pulse=0.6+Math.sin(G.frame*0.05)*0.4;
   ctx.globalAlpha=pulse;
-  ctx.fillText('PRESS SPACE TO SET SAIL',CX,500);
+  ctx.fillText('PRESS SPACE TO SET SAIL',CX,520);
   ctx.globalAlpha=1;
+  ctx.shadowBlur=0;
 
   // Wanted footer
-  ctx.font='14px Pirata One,serif';
+  ctx.font='20px Pirata One,serif';
   ctx.fillStyle='#f59e0b';
-  ctx.fillText('WANTED',CX,550);
-  ctx.fillStyle='#64748b';
+  ctx.fillText('WANTED',CX,564);
   ctx.font='10px Rajdhani,sans-serif';
-  ctx.fillText('DEAD OR ALIVE',CX,570);
+  ctx.fillStyle='#64748b';
+  ctx.fillText('DEAD OR ALIVE',CX,582);
 }
 
 // ── Game Over Screen (Wanted Poster) ──
 function drawGameOver(){
-  ctx.fillStyle='rgba(15,15,26,0.85)';
-  ctx.fillRect(0,0,W,H);
-
-  // Wanted border
-  ctx.strokeStyle='#f59e0b';
-  ctx.lineWidth=4;
-  ctx.strokeRect(30,20,W-60,H-40);
-  ctx.strokeStyle='rgba(245,158,11,0.2)';
-  ctx.lineWidth=1;
-  ctx.strokeRect(36,26,W-72,H-52);
-
   ctx.textAlign='center';
   ctx.textBaseline='middle';
 
+  // darken slightly
+  ctx.fillStyle='rgba(10,10,20,0.55)';
+  ctx.fillRect(0,0,W,H);
+
+  // Wanted border
+  ctx.shadowBlur=0;
+  ctx.strokeStyle='#fbbf24';
+  ctx.lineWidth=4;
+  ctx.strokeRect(30,15,W-60,H-30);
+  ctx.strokeStyle='rgba(251,191,36,0.15)';
+  ctx.lineWidth=1;
+  ctx.strokeRect(36,21,W-72,H-42);
+
   // WANTED header
-  ctx.font='42px Pirata One,serif';
-  ctx.fillStyle='#f59e0b';
-  ctx.shadowColor='#f59e0b';
-  ctx.shadowBlur=20;
+  ctx.font='48px Pirata One,serif';
+  ctx.fillStyle='#fbbf24';
+  ctx.shadowColor='#fbbf24';
+  ctx.shadowBlur=30;
   ctx.fillText('WANTED',CX,90);
   ctx.shadowBlur=0;
 
   // Tricycle icon
   ctx.font='60px sans-serif';
-  ctx.fillText('🛺',CX,170);
+  ctx.fillText('🛺',CX,165);
 
   // Stats
-  ctx.font='24px Orbitron,monospace';
+  ctx.font='28px Orbitron,monospace';
   ctx.fillStyle='#ef4444';
+  ctx.shadowColor='#ef4444';
+  ctx.shadowBlur=15;
   ctx.fillText('GAME OVER',CX,230);
+  ctx.shadowBlur=0;
 
   ctx.font='16px Rajdhani,sans-serif';
-  ctx.fillStyle='#cbd5e1';
+  ctx.fillStyle='#94a3b8';
   ctx.fillText('Final Bounty',CX,270);
 
-  ctx.font='bold 32px Orbitron,monospace';
-  ctx.fillStyle='#facc15';
-  ctx.fillText('◆ '+G.p.beli,CX,310);
+  ctx.font='bold 36px Orbitron,monospace';
+  ctx.fillStyle='#fbbf24';
+  ctx.shadowColor='#fbbf24';
+  ctx.shadowBlur=10;
+  ctx.fillText('◆ '+G.p.beli,CX,312);
+  ctx.shadowBlur=0;
 
-  ctx.font='15px Rajdhani,sans-serif';
-  ctx.fillStyle='#94a3b8';
+  ctx.font='14px Rajdhani,sans-serif';
+  ctx.fillStyle='#64748b';
   ctx.fillText('Level '+G.p.level+'  •  '+G.totalKills+' Defeated  •  Wave '+G.difficulty,CX,350);
 
-  // Upgrades earned
   if(G.p.upgrades.length>0){
-    ctx.fillStyle='#64748b';
+    ctx.fillStyle='#94a3b8';
     ctx.font='12px Rajdhani,sans-serif';
-    ctx.fillText('Devil Fruit Awakenings: '+G.p.upgrades.length,CX,390);
+    ctx.fillText('Devil Fruit Awakenings: '+G.p.upgrades.length,CX,384);
   }
 
   // Restart
-  ctx.font='bold 18px Rajdhani,sans-serif';
+  ctx.font='bold 20px Rajdhani,sans-serif';
   ctx.fillStyle='#a78bfa';
-  const pulse=Math.sin(G.frame*0.04)*0.3+0.7;
+  ctx.shadowColor='#a78bfa';
+  ctx.shadowBlur=16;
+  const pulse=0.6+Math.sin(G.frame*0.05)*0.4;
   ctx.globalAlpha=pulse;
-  ctx.fillText('PRESS SPACE TO SET SAIL AGAIN',CX,460);
+  ctx.fillText('PRESS SPACE TO SET SAIL AGAIN',CX,450);
   ctx.globalAlpha=1;
+  ctx.shadowBlur=0;
 
-  // Bottom text
-  ctx.font='10px Rajdhani,sans-serif';
+  ctx.font='11px Rajdhani,sans-serif';
   ctx.fillStyle='#475569';
-  ctx.fillText('"The Grand Line waits for no one."',CX,530);
+  ctx.fillText('"The Grand Line waits for no one."',CX,510);
 }
 
 // ── Level Up Overlay ──
@@ -1235,8 +1263,15 @@ function render(){
 
 // ── Game Loop ──
 function loop(){
-  update();
-  render();
+  try {
+    update();
+    render();
+  } catch(e) {
+    // fallback: draw something so it's never a blank canvas
+    ctx.fillStyle='#1a1a3e'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#ef4444'; ctx.font='20px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('Game loading... ('+e.message+')',CX,300);
+  }
   requestAnimationFrame(loop);
 }
 
@@ -1373,6 +1408,13 @@ if(!CanvasRenderingContext2D.prototype.roundRect){
     return this;
   };
 }
+
+// ── Draw immediate fallback (visible even if loop fails) ──
+ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,W,H);
+ctx.fillStyle='#ef4444'; ctx.font='bold 28px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+ctx.fillText('⛵ Traysikel Isekai',CX,CY-10);
+ctx.fillStyle='#94a3b8'; ctx.font='16px sans-serif';
+ctx.fillText('Grand Line Cruise',CX,CY+24);
 
 // ── Init ──
 loop();
